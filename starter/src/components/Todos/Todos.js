@@ -1,12 +1,13 @@
-import React, { useContext, useReducer, useState } from 'react';
+import React, { useCallback, useContext, useReducer, useState, Suspense } from 'react';
 import { PartyContext } from '../../providers/PartyProvider';
 import { ProfileContext } from '../../providers/ProfileProvider';
 import { generateRandomTodos } from '../../utils/utils';
 import useWindowSize from '../../hooks/useWindowSize';
 import TodoItem from './TodoItem';
 import styles from './Todos.module.css';
-import Confetti from './Confetti';
+// import { Loader } from './src/components/Todos/Loader.js';
 
+const Confetti = React.lazy(() => import('./Confetti.js'));
 const Todos = () => {
   const [newTodoText, setNewTodoText] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
@@ -28,17 +29,18 @@ const Todos = () => {
     setNewTodoText('');
   };
 
-  const formatTodoText = (text, index) => {
+  const formatTodoText = useCallback((text, index) => {
     return `${text.toLowerCase()} (${index + 1} of 500)`;
-  };
+  }, []);
 
   return (
     <div className={styles.container}>
-      <Confetti
+     <Suspense fallback={<p>Loading...</p>}><Confetti
         size={size}
         showConfetti={showConfetti}
         setShowConfetti={setShowConfetti}
       />
+      </Suspense>
       <section className={styles.newTodoSection}>
         <form onSubmit={onAddNewTodo}>
           <label htmlFor='newTodo'>
